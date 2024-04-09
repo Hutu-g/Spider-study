@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/common/chaojiying_Python/readme.txt" charset="GBK" />
     <file url="file://$PROJECT_DIR$/spider_05/datas/jd_getList_01.csv" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/spider_05/datas/jd_getList_01.csv" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/spider_06/chaojiying_Python/readme.txt" charset="GBK" />
   </component>
 </project>

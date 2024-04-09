@@ -74,8 +74,6 @@ def saveDetail(jd_f_name, jd_df_name,jd_comment_name):
             if "净含量" in info:
                 weight = info.split("：")[1]
             time.sleep(1)
-
-
         jd_Detail_01.write(f"{goods_id},{isJD},{brand},{goods_name},{madein},{grade},{isImport}\n")
 
         print(f"正在爬取第{goods_id}条数据，数据为：" + isJD, brand, goods_name, madein, grade, isImport, weight)
