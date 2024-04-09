@@ -4,10 +4,13 @@
 @Time：2024/4/9 15:11
 """
 import mongo
+from mysql import DBHelper
 import requests
 from lxml import etree
 from common.enums import URL
-def getLanjia(url,cookies,pages,lianjiaFile):
+
+
+def getLanjia(url, cookies, pages, lianjiaFile):
     headers = {
         'sec-ch-ua': '"Microsoft Edge";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
         'sec-ch-ua-mobile': '?0',
@@ -22,12 +25,12 @@ def getLanjia(url,cookies,pages,lianjiaFile):
         'Referer': 'https://bj.lianjia.com/',
         'Accept-Encoding': 'gzip, deflate, br, zstd',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
-        'Cookie':cookies
+        'Cookie': cookies
     }
     global id
     id = 0
-    for page in range(1,pages+1):
-        urls = url +f"{page}"
+    for page in range(1, pages + 1):
+        urls = url + f"{page}"
         html = requests.get(urls, headers=headers).text
         et_html = etree.HTML(html)
         title, position, huxing, mianji, chaoxiang, zhangxiu, louceng, nianfen, jiegou = "", "", "", "", "", "", "", "", ""
@@ -51,24 +54,41 @@ def getLanjia(url,cookies,pages,lianjiaFile):
                     jiegou = infos[5]
             except:
                 print("youyichang")
-            # 写入数据库
-            # db = mongo.get_db("lianjia")
-            # house_dist = {"id": id, "title": title, "position": position, "huxing": huxing, "mianji": mianji,
-            #               "chaoxiang": chaoxiang, "nianfen": nianfen, "zhangxiu": zhangxiu, "louceng": louceng,
-            #               "jiegou": jiegou}
-            # mongo.add_one(db, "house", house_dist)
-            #写入文件
-            lianjiaFile.write(f"{id},{title},{position},{huxing},{mianji},{chaoxiang},{zhangxiu},{louceng},{nianfen},{jiegou}\n")
-def main():
+            datas = id, title, position, huxing, mianji, chaoxiang, zhangxiu, louceng, nianfen, jiegou
+            # 写入MongoDB数据库
+            # safeMongo(datas)
+            # 写入文件
+            # lianjiaFile.write(f"{id},{title},{position},{huxing},{mianji},{chaoxiang},{zhangxiu},{louceng},{nianfen},{jiegou}\n")
+            # 写入Mysql数据库
+            # safeMysql(datas)
+            # 打印
+            print(datas)
 
+def safeMongo(data):
+    id, title, position, huxing, mianji, chaoxiang, zhangxiu, louceng, nianfen, jiegou = data
+    db = mongo.get_db("lianjia")
+    house_dist = {"id": id, "title": title, "position": position, "huxing": huxing, "mianji": mianji,
+                  "chaoxiang": chaoxiang, "nianfen": nianfen, "zhangxiu": zhangxiu, "louceng": louceng,
+                  "jiegou": jiegou}
+    mongo.add_one(db, "house", house_dist)
+    print("写入成功")
+
+
+def safeMysql(data):
+    id, title, position, huxing, mianji, chaoxiang, zhangxiu, louceng, nianfen, jiegou = data
+    with DBHelper("spider_db") as db:
+        db.insert(
+            f"insert into lianjia(id,title, position, huxing, mianji, chaoxiang, zhangxiu, louceng, nianfen, jiegou) values ('{id}','{title}','{position}','{huxing}','{mianji}','{chaoxiang}','{zhangxiu}','{louceng}','{nianfen}','{jiegou}')")
+
+    print("写入成功")
+
+def main():
     url = URL.lianjia['url']
     cookies = URL.lianjia['cookies']
-    pages = 30
+    pages = 2
     lianjiaFile = open("lianjie.csv", mode="a", encoding='utf8')
-    getLanjia(url,cookies,pages,lianjiaFile)
+    getLanjia(url, cookies, pages, lianjiaFile)
     lianjiaFile.close()
-
-
 
 
 if __name__ == '__main__':
