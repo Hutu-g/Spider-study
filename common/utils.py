@@ -8,11 +8,16 @@ import json
 import requests
 from common.enums import URL
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
 """
 @Description：工具函数
 @Author：hutu-g
 @Time：2024/4/2 16:26
 """
+
+
 class Verify:
     @staticmethod
     def wait(web):
@@ -20,7 +25,7 @@ class Verify:
         time.sleep(2)
 
     @staticmethod
-    def text_position_verify(web, img,picName,xpath_url):
+    def text_position_verify(web, img, picName, xpath_url):
         width = img.size.get('width')
         height = img.size.get('height')
         chaojiying = Chaojiying_Client(URL.xss["userName"], URL.xss["password"], '946497')
@@ -33,7 +38,7 @@ class Verify:
             ActionChains(web).move_to_element_with_offset(img, x - (width / 2), y - (height / 2)).perform()
             ActionChains(web).click().perform()
         Verify.wait(web)
-        web.find_element(By.XPATH,xpath_url).click()
+        web.find_element(By.XPATH, xpath_url).click()
         Verify.wait(web)
 
     @staticmethod
@@ -50,13 +55,32 @@ class Verify:
             return result["message"]
         return ""
 
-
     @staticmethod
-    def get_img(web,picName,action,pos_url):
+    def get_img(web, picName, action, pos_url):
         img = web.find_element(action, pos_url)
         img.screenshot(picName)
         Verify.wait(web)
         return img
 
+
+
+class Chrome_driver:
+    @staticmethod
+    def create_chrome_driver(*, headless=False):
+        options = webdriver.ChromeOptions()
+        if headless:
+            options.add_argument('--headless')
+        # 去除自动化痕迹
+        options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        options.add_experimental_option('useAutomationExtension', False)
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        web = webdriver.Chrome(options)
+        return web
+
+
+
+
+
+
 class Chao:
-    code = {"text_position":9004}
+    code = {"text_position": 9004}

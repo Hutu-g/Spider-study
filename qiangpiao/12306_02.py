@@ -54,7 +54,7 @@ def get_ticket(conf, driver, url):
     # 扫码登录
     scan_QR = driver.find_element(by=By.XPATH, value='//*[@id="toolbar_Div"]/div[2]/div[2]/ul/li[2]/a')
     scan_QR.click()
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(20)
 
 
     # 点提示框
