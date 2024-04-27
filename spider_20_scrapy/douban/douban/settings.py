@@ -7,8 +7,9 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = "douban"
+# BOT_NAME = "douban"
 
+# LOG_LEVEL = 'WARNING'
 SPIDER_MODULES = ["douban.spiders"]
 NEWSPIDER_MODULE = "douban.spiders"
 

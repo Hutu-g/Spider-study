@@ -17,6 +17,7 @@ class Movietop250Spider(scrapy.Spider):
 
 
     def parse(self, response: HtmlResponse,**kwargs):
+        print(response)
         sel = Selector(response)
         list_items = sel.css('#content > div > div.article > ol > li')
         for list_item in list_items:
