@@ -14,18 +14,14 @@ class BjlianjiaSpider(scrapy.Spider):
     def start_requests(self):
         for page in range(1, 4):
             yield Request(url=f"https://bj.lianjia.com/ershoufang/pg{page}/")
-
-    def parse(self, response):
+    def parse(self, response:HtmlResponse,**kwargs):
         sel = Selector(response)
         lis = sel.css('#content > div.leftContent > ul > li')
-        'div.info.clear > div.title > a'
         for li in lis:
             lianjian_item = LianjiaItem()
             lianjian_item['title'] = li.css('div.info.clear > div.title > a::text').extract_first() or ""
             lianjian_item['position'] = li.css('div.flood > div > a:nth-child(2)::text').extract_first() or ""
             infos = li.css('div.address > div.houseInfo::text').extract_first().strip().split("|")
-            print(infos)
-
             lianjian_item['huxing'] = infos[0]
             lianjian_item['mianji'] = infos[1]
             lianjian_item['chaoxiang'] = infos[2]

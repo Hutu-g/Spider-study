@@ -4,16 +4,17 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+
 from scrapy.http.response.html import HtmlResponse
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from .utils.request import SeleniumRequest
 import time
-
-
 # useful for handling different item types with a single interface
+from itemadapter import is_item, ItemAdapter
 
 
-class TaobaoSpiderMiddleware:
+class Pc17KseleniumSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
@@ -60,15 +61,81 @@ class TaobaoSpiderMiddleware:
         spider.logger.info("Spider opened: %s" % spider.name)
 
 
-class TaobaoDownloaderMiddleware:
+class Pc17KseleniumDownloaderMiddleware:
+    # Not all methods need to be defined. If a method is not defined,
+    # scrapy acts as if the downloader middleware does not modify the
+    # passed objects.
+
     @classmethod
     def from_crawler(cls, crawler):
+        # This method is used by Scrapy to create your spiders.
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
     def process_request(self, request, spider):
+        # Called for each request that goes through the downloader
+        # middleware.
+
+        # Must either:
+        # - return None: continue processing this request
+        # - or return a Response object
+        # - or return a Request object
+        # - or raise IgnoreRequest: process_exception() methods of
+        #   installed downloader middleware will be called
         return None
+
+    def process_response(self, request, response, spider):
+        # Called with the response returned from the downloader.
+
+        # Must either;
+        # - return a Response object
+        # - return a Request object
+        # - or raise IgnoreRequest
+        return response
+
+    def process_exception(self, request, exception, spider):
+        # Called when a download handler or a process_request()
+        # (from other downloader middleware) raises an exception.
+
+        # Must either:
+        # - return None: continue processing this exception
+        # - return a Response object: stops process_exception() chain
+        # - return a Request object: stops process_exception() chain
+        pass
+
+    def spider_opened(self, spider):
+        spider.logger.info("Spider opened: %s" % spider.name)
+
+
+class BookDownloaderMiddleware:
+    @classmethod
+    def from_crawler(cls, crawler):
+        s = cls()
+        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
+        crawler.signals.connect(s.spider_closed, signal=signals.spider_closed)
+        return s
+
+    def process_request(self, request, spider):
+        if isinstance(request, SeleniumRequest):
+            self.web.get(request.url)
+            self.web.implicitly_wait(10)
+            time.sleep(2)
+            iframe = self.web.find_element(By.XPATH, '/html/body/div[4]/div/div/iframe')
+            self.web.switch_to.frame(iframe)
+            account_ops = self.web.find_element(By.XPATH, '/html/body/form/dl/dd[2]/input')
+            account_ops.click()
+            account_ops.send_keys("15060927832")
+            password_ops = self.web.find_element(By.XPATH, '/html/body/form/dl/dd[3]/input')
+            password_ops.click()
+            password_ops.send_keys("gaoqiang123")
+            self.web.find_element(By.XPATH, '//*[@id="protocol"]').click()
+            self.web.find_element(By.XPATH, '/html/body/form/dl/dd[5]/input').click()
+            self.web.switch_to.parent_frame()
+            time.sleep(3)
+            print("登录成功")
+            page_source = self.web.page_source
+            return HtmlResponse(url=request.url, encoding='utf-8', request=request, body=page_source)
 
     def process_response(self, request, response, spider):
         return response
@@ -77,19 +144,7 @@ class TaobaoDownloaderMiddleware:
         pass
 
     def spider_opened(self, spider):
-        spider.logger.info("Spider opened: %s" % spider.name)
-
-
-class sumlenDownloaderMiddleware:
-    @classmethod
-    def from_crawler(cls, crawler):
-        s = cls()
-        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        crawler.signals.connect(s.spider_closed, signal=signals.spider_closed)
-        return s
-
-    def spider_opened(self, spider):
-        spider.logger.info("当前下载中间件: %s", spider.name)
+        spider.logger.info("当前下载中间件: %s" % spider.name)
         options = webdriver.ChromeOptions()
         # options.add_argument('--headless')
         # 去除自动化痕迹
@@ -101,23 +156,3 @@ class sumlenDownloaderMiddleware:
 
     def spider_closed(self, spider):
         self.web.close()
-
-    def process_request(self, request, spider):
-        if isinstance(request, SeleniumRequest):
-            self.web.get(request.url)
-            self.web.implicitly_wait(10)
-            time.sleep(2)
-            # 登录操作 扫码登录
-            time.sleep(10)
-            self.web.execute_script('window.scrollTo(0, 2000)')
-            time.sleep(1)
-            self.web.execute_script('window.scrollTo(0, 2321)')
-            print("登录成功")
-            page_source = self.web.page_source
-            return HtmlResponse(url=request.url, request=request, encoding='utf-8', body=page_source)
-
-    def process_response(self, request, response, spider):
-        return response
-
-    def process_exception(self, request, exception, spider):
-        pass

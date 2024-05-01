@@ -8,17 +8,15 @@
 from itemadapter import ItemAdapter
 from .mysql import DBHelper
 from .mongo import MyMongoDB
+from scrapy.pipelines.images import ImagesPipeline, FilesPipeline
 
 
 class LianjiaPipeline:
     def process_item(self, item, spider):
         return item
-
-
 class MysqlPipeline:
     def __init__(self):
         self.db = DBHelper("spider_db")
-
     def process_item(self, item, spider):
         # id = item.get('id', '')
         title = item.get('title', 0)
@@ -33,8 +31,6 @@ class MysqlPipeline:
         self.db.insert(
             f"insert into lianjia_scrapy(title,position,huxing,mianji,chaoxiang,zhangxiu,louceng,nianfen,jiegou) values ('{title}','{position}','{huxing}','{mianji}','{chaoxiang}','{zhangxiu}','{louceng}','{nianfen}','{jiegou}')")
         return item
-
-
 class MongodbPipeline:
     def __init__(self):
         self.db = MyMongoDB.get_db("lianjia")
