@@ -3,8 +3,9 @@
 
 # IntelliJ project files
 .idea
-common/**
 *.iml
 *.csv
 out
 gen
+/common/
+/qiangpiao/
